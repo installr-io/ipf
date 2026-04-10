@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Installr.io
+
+    Copyright (c) 2025-present Dorian Vallant
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, version 3.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.installr</groupId>
+        <artifactId>installr-project</artifactId>
+        <version>0.1.0</version>
+    </parent>
+
+    <artifactId>ipf-parent</artifactId>
+    <version>0.1.0</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>maven-plugin</module>
+    </modules>
+
+    <description>ipf - Create IPF packages</description>
+    <url>https://installr.io</url>
+
+    <scm>
+        <connection>scm:git:https://github.com/installr-io/ipf.git</connection>
+        <developerConnection>git@github.com:installr-io/ipf.git</developerConnection>
+        <url>https://github.com/installr-io/ipf</url>
+    </scm>
+
+    <properties>
+        <!-- dependency versions -->
+        <installr.version>0.1.0</installr.version>
+
+        <commons-logging.version>1.3.6</commons-logging.version>
+        <httpcomponents.version>4.5.14</httpcomponents.version>
+
+        <!-- plugin versions -->
+        <maven-plugin-plugin.version>3.15.2</maven-plugin-plugin.version>
+        <maven-plugin-annotations.version>3.15.2</maven-plugin-annotations.version>
+        <plexus-component-metadata.version>2.2.0</plexus-component-metadata.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- out own dependencies -->
+            <dependency>
+                <groupId>io.installr</groupId>
+                <artifactId>installr-lib-pkg</artifactId>
+                <version>${installr.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.installr</groupId>
+                <artifactId>installr-lib-registry</artifactId>
+                <version>${installr.version}</version>
+            </dependency>
+
+            <!-- maven dependencies -->
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-core</artifactId>
+                <version>${maven.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-plugin-api</artifactId>
+                <version>${maven.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.plugin-tools</groupId>
+                <artifactId>maven-plugin-annotations</artifactId>
+                <version>${maven-plugin-annotations.version}</version>
+            </dependency>
+
+            <!-- 3rd party dependencies -->
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>${commons-logging.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${httpcomponents.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpmime</artifactId>
+                <version>${httpcomponents.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <repositories>
+        <repository>
+            <id>installr-io-maven-repo</id>
+            <name>Installr.io Maven Repository</name>
+            <url>https://maven.pkg.github.com/installr-io/installr</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>installr-io-maven-repo</id>
+            <name>Installr.io Maven Repository</name>
+            <url>https://maven.pkg.github.com/installr-io/installr</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-plugin-plugin</artifactId>
+                    <version>${maven-plugin-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.plexus</groupId>
+                    <artifactId>plexus-component-metadata</artifactId>
+                    <version>${plexus-component-metadata.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <!-- do not install parent -->
+            <plugin>
+                <artifactId>maven-install-plugin</artifactId>
+                <inherited>false</inherited>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <!-- do not deploy parent -->
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <inherited>false</inherited>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
