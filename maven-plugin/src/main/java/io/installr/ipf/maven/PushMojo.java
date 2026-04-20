@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -76,6 +77,15 @@ public final class PushMojo extends AbstractIpfMojo {
     private String repositoryAuthServerId;
 
     /**
+     * URL of the repository to which snapshots should be pushed. If not set `repositoryUrl` is used.
+     */
+    @Parameter(
+        property = "ipf.snapshot-repository.url",
+        required = false
+    )
+    private URL snapshotRepositoryUrl;
+
+    /**
      * Skip mojo execution.
      */
     @Parameter(
@@ -92,6 +102,9 @@ public final class PushMojo extends AbstractIpfMojo {
                 log().info( "Mojo execution skipped." );
                 return;
             }
+            if ( snapshotRepositoryUrl == null ) {
+                snapshotRepositoryUrl = repositoryUrl;
+            }
             log().info( "Pushing package '%s'...", packageId );
             final Path packagePath = targetDirectory.resolve( packageId.toArchiveName() );
             if ( !Files.exists( packagePath ) ) {
@@ -102,6 +115,7 @@ public final class PushMojo extends AbstractIpfMojo {
             log().nl();
             log().info( "Package path: %s", packagePath );
             log().info( "Repository URL: %s", repositoryUrl );
+            log().info( "Snapshot-Repository URL: %s", snapshotRepositoryUrl );
             log().nl();
             pushPackage( packagePath );
             log().info( "Package '%s' successfully pushed.", packageId );
@@ -130,11 +144,13 @@ public final class PushMojo extends AbstractIpfMojo {
             .addBinaryBody( "packageData", Files.readAllBytes( packagePath ) )
             .build();
 
-        final HttpPut put = new HttpPut( repositoryUrl.toString() + "/packages" );
+        final URL pushUrl = isSnapshot() ? snapshotRepositoryUrl : repositoryUrl;
+        log().info( "Pushing package '%s' to '%s'...", packageId, pushUrl );
+        final HttpPut put = new HttpPut( pushUrl.toString() + "/packages" );
         put.setEntity( entity );
 
         try ( CloseableHttpClient _httpClient = HttpClients.custom().build() ) {
-            try ( CloseableHttpResponse response = _httpClient.execute( put, clientContext() ) ) {
+            try ( CloseableHttpResponse response = _httpClient.execute( put, clientContext( pushUrl ) ) ) {
                 int code = response.getStatusLine().getStatusCode();
                 if ( code != 201 ) {
                     throw new IOException( "status code = " + code );
@@ -143,10 +159,19 @@ public final class PushMojo extends AbstractIpfMojo {
         }
     }
 
-    private HttpClientContext clientContext() throws MojoFailureException {
-        final String host = repositoryUrl.getHost();
-        final int port = repositoryUrl.getPort() == -1 ? repositoryUrl.getDefaultPort() : repositoryUrl.getPort();
-        final String proto = repositoryUrl.getProtocol();
+    private boolean isSnapshot() {
+        final List<String> preReleases = packageId.version().getPreRelease();
+        if ( preReleases == null ) {
+            return false;
+        }
+        return preReleases.stream()
+            .anyMatch( x -> "SNAPSHOT".equals( x ) );
+    }
+
+    private HttpClientContext clientContext( URL url ) throws MojoFailureException {
+        final String host = url.getHost();
+        final int port = url.getPort() == -1 ? url.getDefaultPort() : url.getPort();
+        final String proto = url.getProtocol();
 
         final HttpHost targetHost = new HttpHost( host, port, proto );
         final AuthCache authCache = new BasicAuthCache();
