@@ -69,6 +69,7 @@ public final class PushMojo extends AbstractIpfMojo {
 
     /**
      * Server id in settings.xml that should be used for the credentials to authenticate against the repository server.
+     * If omitted, the hostname of the (snapshot) repository url is used.
      */
     @Parameter(
         property = "ipf.repository.auth.server-id",
@@ -180,6 +181,10 @@ public final class PushMojo extends AbstractIpfMojo {
         final HttpClientContext context = HttpClientContext.create();
         context.setAuthCache( authCache );
 
+        if ( repositoryAuthServerId == null ) {
+            repositoryAuthServerId = determineFromUrl( url );
+        }
+        log().debug( "repositoryAuthServerId = %s", repositoryAuthServerId );
         if ( repositoryAuthServerId != null ) {
             final Server server = mavenServerSettings( repositoryAuthServerId );
             final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
@@ -190,6 +195,10 @@ public final class PushMojo extends AbstractIpfMojo {
             context.setCredentialsProvider( credentialsProvider );
         }
         return context;
+    }
+
+    private String determineFromUrl( URL url ) {
+        return url.getHost();
     }
 
 }
