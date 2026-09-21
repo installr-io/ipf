@@ -17,6 +17,8 @@
  */
 package io.installr.ipf.maven;
 
+import javax.inject.Inject;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -32,7 +34,7 @@ import io.installr.lib.pkg.PackageId;
 public abstract class AbstractIpfMojo extends AbstractMojo {
 
     @SuppressWarnings( "deprecation" )
-    @Component
+    @Inject
     private SettingsDecrypter mavenSettingsDecrypter;
 
     /**
