@@ -47,7 +47,7 @@
 
     <properties>
         <!-- dependency versions -->
-        <installr.version>0.2.0</installr.version>
+        <installr.version>0.3.0</installr.version>
 
         <commons-logging.version>1.4.0</commons-logging.version>
         <httpcomponents.version>4.5.14</httpcomponents.version>
