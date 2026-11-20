@@ -9,6 +9,7 @@ jobs:
     build:
         permissions:
             contents: read
+            packages: write
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v6
@@ -22,7 +23,7 @@ jobs:
 
             - name: Build
               env:
-                  GITHUB_TOKEN: ${{ secrets.PA_TOKEN }}
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: mvn -B clean deploy
 
     create-release:
